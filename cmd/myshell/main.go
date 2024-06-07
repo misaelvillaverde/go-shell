@@ -36,12 +36,24 @@ func typeof(cmd string) string {
 		return cmd + " is a shell builtin"
 	}
 
-	return cmd + " not found"
+	for _, dir := range pathDirs {
+		if _, err := os.Stat(dir + "/" + cmd); err == nil {
+			return dir + "/" + cmd
+		}
+	}
+
+	return cmd + ": not found"
 }
 
-var commands map[string]func(args ...string)
+var (
+	commands map[string]func(args ...string)
+	pathDirs []string
+)
 
 func init() {
+	path := os.Getenv("PATH")
+	pathDirs = strings.Split(path, string(os.PathListSeparator))
+
 	commands = map[string]func(args ...string){
 		"exit": func(args ...string) {
 			os.Exit(0)
