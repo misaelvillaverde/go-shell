@@ -20,6 +20,19 @@ func main() {
 
 		command = strings.TrimSpace(command)
 
+		predicate := strings.Split(command, " ")
+
+		if parse, ok := commands[predicate[0]]; ok {
+			parse(predicate[1:]...)
+			continue
+		}
+
 		fmt.Printf("%s: command not found\n", command)
 	}
+}
+
+var commands map[string]func(args ...string) = map[string]func(args ...string){
+	"exit": func(args ...string) {
+		os.Exit(0)
+	},
 }
