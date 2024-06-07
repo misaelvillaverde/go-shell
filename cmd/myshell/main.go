@@ -8,16 +8,18 @@ import (
 )
 
 func main() {
-	fmt.Fprint(os.Stdout, "$ ")
+	for {
+		fmt.Fprint(os.Stdout, "$ ")
 
-	command, err := bufio.NewReader(os.Stdin).ReadString('\n')
+		command, err := bufio.NewReader(os.Stdin).ReadString('\n')
 
-	if err != nil {
-		fmt.Println(err)
-		return
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		command = strings.TrimSpace(command)
+
+		fmt.Printf("%s: command not found\n", command)
 	}
-
-	command = strings.TrimSpace(command)
-
-	fmt.Printf("%s: command not found\n", command)
 }
