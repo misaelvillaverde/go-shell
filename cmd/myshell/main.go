@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 )
 
@@ -18,51 +19,50 @@ func main() {
 			return
 		}
 
-		command = strings.TrimSpace(command)
-
-		predicate := strings.Split(command, " ")
-
-		if parse, ok := commands[predicate[0]]; ok {
-			parse(predicate[1:]...)
-			continue
-		}
-
-		fmt.Printf("%s: command not found\n", command)
+		parseCommand(command)
 	}
 }
 
+var (
+	builtins = map[string]struct{}{
+		"exit": {},
+		"echo": {},
+		"type": {},
+	}
+)
+
 func typeof(cmd string) string {
-	if _, ok := commands[cmd]; ok {
+	if _, ok := builtins[cmd]; ok {
 		return cmd + " is a shell builtin"
 	}
 
-	for _, dir := range pathDirs {
-		if _, err := os.Stat(dir + "/" + cmd); err == nil {
-			return dir + "/" + cmd
-		}
+	if path, err := exec.LookPath(cmd); err == nil {
+		return cmd + " is " + path
 	}
 
 	return cmd + ": not found"
 }
 
-var (
-	commands map[string]func(args ...string)
-	pathDirs []string
-)
+func parseCommand(command string) {
+	predicate := strings.Split(command[:len(command)-1], " ")
+	cmd := predicate[0]
+	args := predicate[1:]
 
-func init() {
-	path := os.Getenv("PATH")
-	pathDirs = strings.Split(path, string(os.PathListSeparator))
+	switch cmd {
+	case "exit":
+		os.Exit(0)
+		return
+	case "echo":
+		fmt.Println(strings.Join(args, " "))
+		return
+	case "type":
+		fmt.Println(typeof(args[0]))
+		return
+	}
 
-	commands = map[string]func(args ...string){
-		"exit": func(args ...string) {
-			os.Exit(0)
-		},
-		"echo": func(args ...string) {
-			fmt.Println(strings.Join(args, " "))
-		},
-		"type": func(args ...string) {
-			fmt.Println(typeof(args[0]))
-		},
+	if output, err := exec.Command(cmd, args...).Output(); err == nil {
+		fmt.Print(string(output))
+	} else {
+		fmt.Printf("%s: command not found\n", cmd)
 	}
 }
