@@ -31,11 +31,26 @@ func main() {
 	}
 }
 
-var commands map[string]func(args ...string) = map[string]func(args ...string){
-	"exit": func(args ...string) {
-		os.Exit(0)
-	},
-	"echo": func(args ...string) {
-		fmt.Println(strings.Join(args, " "))
-	},
+func typeof(cmd string) string {
+	if _, ok := commands[cmd]; ok {
+		return cmd + " is a shell builtin"
+	}
+
+	return cmd + " not found"
+}
+
+var commands map[string]func(args ...string)
+
+func init() {
+	commands = map[string]func(args ...string){
+		"exit": func(args ...string) {
+			os.Exit(0)
+		},
+		"echo": func(args ...string) {
+			fmt.Println(strings.Join(args, " "))
+		},
+		"type": func(args ...string) {
+			fmt.Println(typeof(args[0]))
+		},
+	}
 }
