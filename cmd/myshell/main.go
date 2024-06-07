@@ -60,7 +60,14 @@ func parseCommand(command string) {
 		return
 	case "cd":
 		if err := os.Chdir(args[0]); err != nil {
-			fmt.Printf("cd: %s: No such file or directory\n", args[0])
+			errMessage := fmt.Sprintf("cd: %s: No such file or directory", args[0])
+			if args[0] == "~" {
+				if err := os.Chdir(os.Getenv("HOME")); err != nil {
+					fmt.Println(errMessage)
+				}
+			} else {
+				fmt.Println(errMessage)
+			}
 		}
 		return
 	}
