@@ -58,6 +58,11 @@ func parseCommand(command string) {
 	case "type":
 		fmt.Println(typeof(args[0]))
 		return
+	case "cd":
+		if err := os.Chdir(args[0]); err != nil {
+			fmt.Printf("cd: %s: No such file or directory\n", args[0])
+		}
+		return
 	}
 
 	if output, err := exec.Command(cmd, args...).Output(); err == nil {
