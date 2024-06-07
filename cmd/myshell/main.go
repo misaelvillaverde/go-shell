@@ -35,4 +35,7 @@ var commands map[string]func(args ...string) = map[string]func(args ...string){
 	"exit": func(args ...string) {
 		os.Exit(0)
 	},
+	"echo": func(args ...string) {
+		fmt.Println(strings.Join(args, " "))
+	},
 }
